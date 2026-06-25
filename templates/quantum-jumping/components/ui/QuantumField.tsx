@@ -14,6 +14,9 @@ interface Particle {
   vy: number;
   r: number;
   c: number;
+  depth: number; // 0..1 — larger = closer, drifts faster
+  tw: number; // twinkle phase
+  tws: number; // twinkle speed
 }
 
 const COLORS = ['167,139,250', '34,211,238', '217,70,239', '125,211,252'];
@@ -35,6 +38,7 @@ export function QuantumField({ className = '', density = 80 }: QuantumFieldProps
     let width = 0;
     let height = 0;
     let raf = 0;
+    let running = false;
     let particles: Particle[] = [];
     const mouse = { x: -9999, y: -9999 };
 
@@ -50,14 +54,21 @@ export function QuantumField({ className = '', density = 80 }: QuantumFieldProps
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const count = Math.min(density, Math.floor((width * height) / 16000));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.22,
-        vy: (Math.random() - 0.5) * 0.22,
-        r: Math.random() * 1.5 + 0.4,
-        c: Math.floor(Math.random() * COLORS.length),
-      }));
+      particles = Array.from({ length: count }, () => {
+        const depth = Math.random();
+        const speed = 0.08 + depth * 0.28; // closer particles drift faster
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * speed,
+          vy: (Math.random() - 0.5) * speed,
+          r: 0.4 + depth * 1.6, // closer particles are larger
+          c: Math.floor(Math.random() * COLORS.length),
+          depth,
+          tw: Math.random() * Math.PI * 2,
+          tws: 0.008 + Math.random() * 0.02,
+        };
+      });
     }
 
     function draw() {
@@ -73,10 +84,15 @@ export function QuantumField({ className = '', density = 80 }: QuantumFieldProps
         if (p.y < 0) p.y += height;
         if (p.y > height) p.y -= height;
 
+        // Gentle twinkle via opacity oscillation.
+        p.tw += p.tws;
+        const twinkle = 0.55 + Math.sin(p.tw) * 0.35;
+        const alpha = (0.45 + p.depth * 0.45) * twinkle;
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${COLORS[p.c]},0.85)`;
-        ctx.shadowBlur = 8;
+        ctx.fillStyle = `rgba(${COLORS[p.c]},${alpha})`;
+        ctx.shadowBlur = 6 + p.depth * 6;
         ctx.shadowColor = `rgba(${COLORS[p.c]},0.6)`;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -117,6 +133,17 @@ export function QuantumField({ className = '', density = 80 }: QuantumFieldProps
       raf = requestAnimationFrame(draw);
     }
 
+    function start() {
+      if (running || reduce) return;
+      running = true;
+      raf = requestAnimationFrame(draw);
+    }
+
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
     function handleMouse(e: MouseEvent) {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
@@ -127,23 +154,31 @@ export function QuantumField({ className = '', density = 80 }: QuantumFieldProps
       mouse.y = -9999;
     }
 
+    function handleVisibility() {
+      if (document.hidden) stop();
+      else start();
+    }
+
     resize();
     if (reduce) {
+      // Render a single static frame, no loop.
       draw();
       cancelAnimationFrame(raf);
     } else {
-      raf = requestAnimationFrame(draw);
+      start();
     }
 
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', handleMouse);
     window.addEventListener('mouseleave', handleLeave);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouse);
       window.removeEventListener('mouseleave', handleLeave);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [density]);
 

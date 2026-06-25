@@ -30,25 +30,53 @@ One-click deployable to Vercel with zero configuration (`images.unoptimized = tr
 
 ```
 app/
-  layout.tsx     Root layout: background layers + animated QuantumField canvas
-  globals.css    Design tokens, quantum aurora/grid/mesh background, animations
-  page.tsx       The full landing page (hero, theory, practice, features,
-                 stats, session log, testimonials, tiers, CTA)
+  layout.tsx            Root layout: next/font, rich metadata, background layers,
+                        scroll progress + animated QuantumField canvas
+  globals.css           Design tokens, quantum aurora/grid/mesh/grain background,
+                        focus + selection styles, animations, reduced-motion
+  page.tsx              The full landing page (see sections below)
+  icon.tsx              Generated favicon — a quantum "Q" mark (next/og)
+  opengraph-image.tsx   Generated 1200×630 branded OG/Twitter card (next/og)
 components/ui/
-  LiquidGlass.tsx  Multi-layer glass with noise, sheen, 3D tilt (shared primitive)
-  SplitText.tsx    Char-by-char blur/reveal headline animation (shared primitive)
-  Magnetic.tsx     Cursor-attraction wrapper (shared primitive)
-  GlowCard.tsx     Cursor-tracking radial glow card (shared primitive)
-  Reveal.tsx       Scroll-triggered blur/translate entrance (shared primitive)
-  QuantumField.tsx Interactive canvas particle field with cursor links (new)
-  PortalOrb.tsx    Animated multi-ring portal centerpiece (new)
-  CountUp.tsx      In-view animated number counter (new)
+  Header.tsx        Sticky header: scroll-aware blur, active-section nav,
+                    animated full-screen mobile menu (Escape/keyboard aware)
+  Footer.tsx        Multi-column footer: brand, nav, newsletter, social icons
+  ScrollProgress.tsx Top gradient progress bar (useScroll + scaleX)
+  FAQ.tsx           Accessible animated accordion (aria-expanded/controls)
+  SelfSelector.tsx  "Choose a self" tabbed interactive with cross-fade panels
+  SessionLog.tsx    Console session log with line-by-line reveal + blinking cursor
+  CursorGlow.tsx    Hero-confined cursor-follow glow (motion values, spring)
+  LiquidGlass.tsx   Multi-layer glass with noise, sheen, spring 3D tilt
+  SplitText.tsx     Word-then-char blur/reveal headline animation
+  Magnetic.tsx      Cursor-attraction wrapper
+  GlowCard.tsx      Cursor-tracking radial glow card (motion values, no re-render)
+  Reveal.tsx        Scroll-triggered blur/translate entrance
+  QuantumField.tsx  Interactive canvas particle field — depth parallax, twinkle,
+                    cursor constellation lines, pauses when tab hidden
+  PortalOrb.tsx     Cinematic portal centerpiece — energy swirl, orbiting sparks,
+                    layered bloom
+  CountUp.tsx       In-view animated number counter
 ```
+
+## Page sections
+
+Hero (portal centerpiece, split-text headline, dual CTAs, trust row, scroll cue) ·
+evocative term marquee · The Premise · **Choose a Self** interactive · The Method
+(4-step timeline with connecting spine) · Features (3 LiquidGlass cards) · Stats
+band (CountUp) · Session log console · Testimonials · Pricing tiers ·
+**FAQ accordion** · final CTA · premium footer.
 
 ## Design system
 
-- Background `#09090b`; quantum accents violet `#8b5cf6`, cyan `#22d3ee`, plasma `#d946ef`.
-- Fonts: Geist (display/body), Instrument Serif (editorial italic), Geist Mono.
-- Motion via `LazyMotion` + `domAnimation`. Respects `prefers-reduced-motion`.
+- Background `#09090b`; quantum accents violet `#8b5cf6`, glow `#a78bfa`,
+  cyan `#22d3ee`, plasma/fuchsia `#d946ef`.
+- Fonts loaded via `next/font/google`: Geist (display/body), Instrument Serif
+  (editorial italic, weight 400), Geist Mono — self-hosted, zero CLS.
+- Motion via `LazyMotion` + `domAnimation`. Thoroughly respects
+  `prefers-reduced-motion` (parallax, marquee, aurora, float, canvas loop,
+  count-up and accordions all degrade gracefully).
+- Accessibility: skip-to-content link, semantic landmarks, visible focus rings,
+  violet text selection, aria-labelled icon-only controls, keyboard-reachable
+  navigation and menus.
 
 MIT licensed, part of [arcanea-templates](https://github.com/frankxai/arcanea-templates).

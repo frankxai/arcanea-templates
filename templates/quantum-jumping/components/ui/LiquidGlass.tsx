@@ -1,7 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import {
+  LazyMotion,
+  domAnimation,
+  m,
+  useMotionValue,
+  useMotionTemplate,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 
 interface LiquidGlassProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -38,9 +46,7 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
     ref,
   ) => {
     const innerRef = React.useRef<HTMLDivElement>(null);
-    const [pos, setPos] = React.useState({ x: -9999, y: -9999 });
     const [hovering, setHovering] = React.useState(false);
-    const [transform, setTransform] = React.useState({ rotateX: 0, rotateY: 0 });
     const cfg = INTENSITY_MAP[intensity];
 
     const glowRgba = React.useMemo(() => {
@@ -52,6 +58,20 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
       return `${r}, ${g}, ${b}`;
     }, [tint]);
 
+    // Sheen position (no React re-render).
+    const px = useMotionValue(-9999);
+    const py = useMotionValue(-9999);
+    const sheenBg = useMotionTemplate`radial-gradient(350px circle at ${px}px ${py}px, rgba(${glowRgba}, 0.12), transparent 60%)`;
+
+    // Tilt: -1..1 normalized values fed through spring physics for a buttery 3D tilt.
+    const tx = useMotionValue(0);
+    const ty = useMotionValue(0);
+    const springConfig = { damping: 25, stiffness: 150, mass: 0.6 };
+    const sx = useSpring(tx, springConfig);
+    const sy = useSpring(ty, springConfig);
+    const rotateX = useTransform(sy, [-1, 1], [tiltIntensity, -tiltIntensity]);
+    const rotateY = useTransform(sx, [-1, 1], [-tiltIntensity, tiltIntensity]);
+
     function handleMove(e: React.MouseEvent<HTMLDivElement>) {
       const el = innerRef.current;
       if (!el) return;
@@ -59,22 +79,25 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      if (sheen) setPos({ x, y });
+      if (sheen) {
+        px.set(x);
+        py.set(y);
+      }
 
       if (tilt) {
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        setTransform({
-          rotateX: ((y - centerY) / centerY) * -tiltIntensity,
-          rotateY: ((x - centerX) / centerX) * tiltIntensity,
-        });
+        tx.set((x - rect.width / 2) / (rect.width / 2));
+        ty.set((y - rect.height / 2) / (rect.height / 2));
       }
     }
 
     function handleLeave() {
       setHovering(false);
-      setPos({ x: -9999, y: -9999 });
-      if (tilt) setTransform({ rotateX: 0, rotateY: 0 });
+      px.set(-9999);
+      py.set(-9999);
+      if (tilt) {
+        tx.set(0);
+        ty.set(0);
+      }
     }
 
     return (
@@ -97,7 +120,7 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
           )}
 
           {/* Glass body */}
-          <div
+          <m.div
             ref={innerRef}
             onMouseMove={handleMove}
             onMouseEnter={() => setHovering(true)}
@@ -112,11 +135,10 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
                 inset 0 0 0 1px rgba(${glowRgba}, 0.06),
                 0 4px 16px rgba(0,0,0,0.25)
               `,
-              transform: tilt
-                ? `rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`
-                : undefined,
+              rotateX: tilt ? rotateX : undefined,
+              rotateY: tilt ? rotateY : undefined,
               transformStyle: tilt ? 'preserve-3d' : undefined,
-              transition: 'backdrop-filter 400ms ease, transform 200ms ease-out, box-shadow 300ms ease',
+              transition: 'backdrop-filter 400ms ease, box-shadow 300ms ease',
             }}
           >
             {/* Top Highlight Sheen Overlay */}
@@ -134,11 +156,11 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
 
             {/* Mouse radial sheen gradient */}
             {sheen && (
-              <div
+              <m.div
                 className="pointer-events-none absolute inset-0 transition-opacity duration-300"
                 style={{
                   opacity: hovering ? 0.35 : 0,
-                  background: `radial-gradient(350px circle at ${pos.x}px ${pos.y}px, rgba(${glowRgba}, 0.12), transparent 60%)`,
+                  background: sheenBg,
                 }}
               />
             )}
@@ -150,7 +172,7 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
             >
               {children}
             </div>
-          </div>
+          </m.div>
         </div>
       </LazyMotion>
     );
