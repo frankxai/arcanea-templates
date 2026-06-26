@@ -1,0 +1,204 @@
+/*
+ * Quantum Jumping — scoped styles
+ * ---------------------------------------------------------------------------
+ * Every selector here is nested under `.qj-root` so nothing leaks into the
+ * rest of frankx.ai. Fonts reuse the site's existing CSS variables
+ * (--font-poppins / --font-serif / --font-inter / --font-mono) so the page
+ * feels native while keeping its own violet/cyan/plasma quantum identity.
+ *
+ * The quantum palette (violet #8b5cf6 · cyan #22d3ee · plasma #d946ef over
+ * near-black #09090b) reads as a deliberate, premium dark-glass variant of the
+ * design-lab aesthetic.
+ */
+
+.qj-root {
+  --qj-bg: #09090b;
+  --qj-violet: #8b5cf6;
+  --qj-glow: #a78bfa;
+  --qj-cyan: #22d3ee;
+  --qj-plasma: #d946ef;
+  position: relative;
+  background: var(--qj-bg);
+  color: #f4f4f5;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  isolation: isolate;
+}
+
+/* ---- Font roles (mapped onto the site's loaded fonts) ---- */
+.qj-root .qj-font-display {
+  font-family: var(--font-poppins), 'Poppins', system-ui, sans-serif;
+}
+.qj-root .qj-font-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.qj-root .qj-font-editorial {
+  font-family: var(--font-serif), 'Playfair Display', Georgia, serif;
+  font-style: italic;
+}
+.qj-root .qj-font-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', Menlo, monospace;
+}
+
+/* ---- Selection ---- */
+.qj-root ::selection {
+  background: rgba(139, 92, 246, 0.35);
+  color: #f4f4f5;
+}
+
+/* ---------- Layered quantum background ---------- */
+.qj-root .qj-bg-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background-image:
+    radial-gradient(at 12% 8%, rgba(139, 92, 246, 0.18) 0px, transparent 45%),
+    radial-gradient(at 88% 4%, rgba(34, 211, 238, 0.14) 0px, transparent 45%),
+    radial-gradient(at 50% 0%, rgba(217, 70, 239, 0.10) 0px, transparent 50%),
+    radial-gradient(at 80% 92%, rgba(99, 102, 241, 0.12) 0px, transparent 45%);
+}
+
+.qj-root .qj-bg-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 70%);
+}
+
+.qj-root .qj-bg-aurora {
+  position: absolute;
+  inset: -25%;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.55;
+  filter: blur(80px);
+  background:
+    conic-gradient(from 180deg at 50% 50%,
+      rgba(139, 92, 246, 0) 0deg,
+      rgba(34, 211, 238, 0.07) 90deg,
+      rgba(217, 70, 239, 0.06) 200deg,
+      rgba(99, 102, 241, 0.05) 300deg,
+      rgba(139, 92, 246, 0) 360deg);
+  animation: qj-aurora-spin 44s linear infinite;
+}
+
+@keyframes qj-aurora-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Subtle film grain overlay */
+.qj-root .qj-bg-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ---------- Quantum gradient text ---------- */
+.qj-root .qj-text-gradient {
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 50%, #d946ef 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.qj-root .qj-text-gradient-animated {
+  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 35%, #d946ef 70%, #a78bfa 100%);
+  background-size: 250% 250%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: qj-gradient-pan 8s ease infinite;
+}
+
+.qj-root .qj-text-glow {
+  color: var(--qj-glow);
+}
+
+@keyframes qj-gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ---------- Floating motion for the portal ---------- */
+@keyframes qj-float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+.qj-root .qj-animate-float-slow {
+  animation: qj-float-slow 7s ease-in-out infinite;
+}
+
+/* Pulsing core glow */
+@keyframes qj-pulse-glow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+.qj-root .qj-animate-pulse-glow {
+  animation: qj-pulse-glow 4s ease-in-out infinite;
+}
+
+/* Soft attention pulse (final CTA atom) */
+@keyframes qj-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.qj-root .qj-animate-pulse {
+  animation: qj-pulse 3s ease-in-out infinite;
+}
+
+/* Scroll cue */
+@keyframes qj-scroll-cue {
+  0% { transform: translateY(0); opacity: 0; }
+  35% { opacity: 1; }
+  70% { transform: translateY(8px); opacity: 0; }
+  100% { opacity: 0; }
+}
+.qj-root .qj-animate-scroll-cue {
+  animation: qj-scroll-cue 2s ease-in-out infinite;
+}
+
+/* Blinking terminal cursor */
+@keyframes qj-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.qj-root .qj-animate-blink {
+  animation: qj-blink 1.1s step-end infinite;
+}
+
+/* Seamless marquee */
+@keyframes qj-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.qj-root .qj-animate-marquee {
+  animation: qj-marquee 32s linear infinite;
+}
+.qj-root .qj-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .qj-root .qj-bg-aurora,
+  .qj-root .qj-animate-float-slow,
+  .qj-root .qj-animate-pulse-glow,
+  .qj-root .qj-animate-pulse,
+  .qj-root .qj-animate-marquee,
+  .qj-root .qj-animate-scroll-cue,
+  .qj-root .qj-animate-blink,
+  .qj-root .qj-text-gradient-animated {
+    animation: none !important;
+  }
+}
