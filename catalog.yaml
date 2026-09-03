@@ -1,0 +1,33 @@
+schema_version: "1.0.0"
+catalog_id: arcanea_templates
+updated_on: "2026-09-03"
+policy: a_template_is_listed_as_release_ready_only_after_clean_clone_build_preview_and_maintenance_verification
+
+items:
+  - id: template_cosmic_landing
+    repository: frankxai/cosmic-landing-template
+    github_state: archived
+    release_state: retired_from_active_catalog
+  - id: template_arcanea_chat
+    repository: frankxai/arcanea-chat-template
+    github_state: archived
+    release_state: retired_from_active_catalog
+  - id: template_arcanea_dashboard
+    repository: frankxai/arcanea-dashboard-template
+    github_state: active
+    release_state: audit_required
+  - id: template_arcanea_mcp_starter
+    repository: frankxai/arcanea-mcp-starter
+    github_state: active
+    release_state: audit_required
+
+planned:
+  - id: template_cinematic_experience
+    repository: pending_canonical_repository_decision
+    release_state: concept
+  - id: template_world_engine
+    repository: pending_canonical_repository_decision
+    release_state: concept
+  - id: template_publishing
+    repository: frankxai/arcanea-publishing-house
+    release_state: capability_scaffold

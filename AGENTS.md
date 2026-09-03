@@ -18,3 +18,6 @@ Template index for Arcanea project starters.
 3. Keep generated files minimal and easy to copy into a new repo.
 4. Verify edits with `git status` and any template-local checks that already exist.
 
+## Catalog and marketplace governance
+
+Read catalog.yaml and MARKETPLACE.md before changing product claims. Do not advertise an archived or unaudited child as maintained, production-ready or marketplace-approved. Each release-ready child must carry product and listing manifests, a rights record, clean-clone evidence and a named maintenance owner. Follow docs/media/media-policy.md. Listing submission, price, spend and public partner claims require explicit authorization.
